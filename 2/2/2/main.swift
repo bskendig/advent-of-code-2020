@@ -27,20 +27,15 @@ func main() {
         }
         let min = Int(t[0])!
         let max = Int(t[1])!
-        let char = t[2]
-        let password = t[3]
+        let char = Character(t[2])
+        let password = Array(t[3])
 
-        let count = password.filter({ String($0) == char }).count
+        let count = password.filter({ $0 == char }).count
         if min <= count && count <= max {
             validPasswordCount1 += 1
         }
 
-        let firstIndex = password.index(password.startIndex, offsetBy: min - 1)
-        let secondIndex = password.index(password.startIndex, offsetBy: max - 1)
-        let firstChar = password[firstIndex]
-        let secondChar = password[secondIndex]
-
-        if (String(firstChar) == char) != (String(secondChar) == char) {
+        if (password[min - 1] == char) != (password[max - 1] == char) {
             validPasswordCount2 += 1
         }
     }
