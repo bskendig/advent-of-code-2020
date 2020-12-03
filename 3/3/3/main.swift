@@ -12,35 +12,32 @@ func getInput() -> String {
     return try! String(contentsOfFile: path!)
 }
 
-func countTrees(with map: [String.SubSequence], right: Int, down: Int) -> Int {
+func treeCount(with forest: [String], right: Int, down: Int) -> Int {
     var treeCount = 0
     var hPos = 0
-    var skipLines = 0
-    for line in map {
-        if skipLines > 0 {
-            skipLines -= 1
-            continue
-        }
+    let reducedForest = forest.enumerated().compactMap { (offset, element) in
+        offset % down == 0 ? element : nil
+    }
+    for line in reducedForest {
         if Array(line)[hPos] == "#" {
             treeCount += 1
         }
         hPos = (hPos + right) % line.count
-        skipLines = down - 1
     }
     return treeCount
 }
 
 func main() {
-    let map = getInput().split(separator: "\n")
+    let forest = getInput().split(separator: "\n").map { String($0) }
 
-    print(countTrees(with: map, right: 3, down: 1))
+    print(treeCount(with: forest, right: 3, down: 1))
 
     print(
-        countTrees(with: map, right: 1, down: 1) *
-        countTrees(with: map, right: 3, down: 1) *
-        countTrees(with: map, right: 5, down: 1) *
-        countTrees(with: map, right: 7, down: 1) *
-        countTrees(with: map, right: 1, down: 2))
+        treeCount(with: forest, right: 1, down: 1) *
+        treeCount(with: forest, right: 3, down: 1) *
+        treeCount(with: forest, right: 5, down: 1) *
+        treeCount(with: forest, right: 7, down: 1) *
+        treeCount(with: forest, right: 1, down: 2))
 }
 
 main()
