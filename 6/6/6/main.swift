@@ -33,6 +33,7 @@ func main() {
     var total2 = 0
     for line in input {
         if line.isEmpty {
+            // the input file has a blank line at the end - if it didn't, this would need to be repeated after the loop
             let sum = parse(group)
             total1 += sum.0
             total2 += sum.1
