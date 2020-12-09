@@ -27,25 +27,52 @@ func fetch() -> String? {
     return instruction
 }
 
-func main() {
-    prog = getInput().split(separator: "\n").map { String($0) }
+func run(flipNth: Int? = nil) -> Bool{
+    pc = 0
+    acc = 0
+    alreadyVisited = []
+    var nthOp = 0
     while let line = fetch() {
         let lineArray = line.split(separator: " ")
-        let op = String(lineArray[0])
+        var op = String(lineArray[0])
+        if nthOp == flipNth {
+            if op == "jmp" {
+                op = "nop"
+            } else if op == "nop" {
+                op = "jmp"
+            }
+        }
         let val = Int(lineArray[1])!
         switch op {
         case "acc":
             acc += val
         case "jmp":
             pc = pc - 1 + val
+            nthOp += 1
         case "nop":
             if pc + val == prog.count {
                 break
             }
-            break
+            nthOp += 1
         default:
             break
         }
+        if pc == prog.count {
+            // successfully exited past the end of the program
+            return true
+        }
+    }
+    return false
+}
+
+func main() {
+    prog = getInput().split(separator: "\n").map { String($0) }
+    run()
+    print(acc)
+
+    var flipNth = 0
+    while run(flipNth: flipNth) == false {
+        flipNth += 1
     }
     print(acc)
 }
