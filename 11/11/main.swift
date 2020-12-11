@@ -21,7 +21,7 @@ func seat(_ x: Int, _ y: Int) -> Character? {
     return layout[y][x]
 }
 
-func neighbors(_ x: Int, _ y: Int, keepGoing: Bool = false) -> Int {
+func neighbors(_ x: Int, _ y: Int, useLineOfSight: Bool = false) -> Int {
     let directions: [(dx: Int, dy: Int)] = [(-1, -1), (0, -1), (1, -1),
                                             (-1,  0),          (1,  0),
                                             (-1,  1), (0,  1), (1,  1)]
@@ -34,7 +34,7 @@ func neighbors(_ x: Int, _ y: Int, keepGoing: Bool = false) -> Int {
             newX += direction.dx
             newY += direction.dy
             visibleSeat = seat(newX, newY)
-        } while visibleSeat == "." && keepGoing
+        } while visibleSeat == "." && useLineOfSight
         if let visibleSeat = visibleSeat {
             adjacentSeats.append(visibleSeat)
         }
@@ -46,35 +46,38 @@ func show(layout: [[Character]]) {
     print(layout.map({ String($0) }).joined(separator: "\n"))
 }
 
-func next(keepGoing: Bool) -> [[Character]] {
-    let occupyMinimum = keepGoing ? 5 : 4
+func next(useLineOfSight: Bool) -> (layout: [[Character]], didChange: Bool) {
+    let occupyMinimum = useLineOfSight ? 5 : 4
+    var didChange = false
     var nextLayout: [[Character]] = []
     for (y, row) in layout.enumerated() {
         var nextRow: [Character] = []
         for (x, seat) in row.enumerated() {
             var nextSeat: Character = seat
-            if seat == "L" && neighbors(x, y, keepGoing: keepGoing) == 0 {
+            if seat == "L" && neighbors(x, y, useLineOfSight: useLineOfSight) == 0 {
                 nextSeat = "#"
-            } else if seat == "#" && neighbors(x, y, keepGoing: keepGoing) >= occupyMinimum {
+                didChange = true
+            } else if seat == "#" && neighbors(x, y, useLineOfSight: useLineOfSight) >= occupyMinimum {
                 nextSeat = "L"
+                didChange = true
             }
             nextRow.append(nextSeat)
         }
         nextLayout.append(nextRow)
     }
-    return nextLayout
+    return (layout: nextLayout, didChange: didChange)
 }
 
-func countOccupiedSeats(keepGoing: Bool = false) -> Int {
-    var nextLayout = next(keepGoing: keepGoing)
+func countOccupiedSeats(useLineOfSight: Bool = false) -> Int {
+    var nextLayout = next(useLineOfSight: useLineOfSight).layout
+    var didChange = false
     repeat {
 //        show(layout: layout)
         layout = nextLayout
-        nextLayout = next(keepGoing: keepGoing)
-    } while layout != nextLayout
+        (nextLayout, didChange) = next(useLineOfSight: useLineOfSight)
+    } while didChange
     return layout.reduce(0, { $0 + $1.filter({ $0 == "#" }).count })
 }
-
 
 func main() {
     let startingLayout = getInput().split(separator: "\n").map { Array(String($0)) }
@@ -83,7 +86,7 @@ func main() {
     print(countOccupiedSeats())
 
     layout = startingLayout
-    print(countOccupiedSeats(keepGoing: true))
+    print(countOccupiedSeats(useLineOfSight: true))
 }
 
 main()
