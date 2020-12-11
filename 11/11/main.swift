@@ -18,7 +18,6 @@ func seat(_ x: Int, _ y: Int) -> Character {
     guard 0 <= y, y < layout.count, 0 <= x, x < layout[0].count else {
         return "."
     }
-//    print("\(x), \(y)")
     return layout[y][x]
 }
 
@@ -33,7 +32,7 @@ func countOccupiedSeats() -> Int {
     return layout.reduce(0, { $0 + $1.filter({ $0 == "#" }).count })
 }
 
-func showLayout() {
+func show(layout: [[Character]]) {
     print(layout.map({ String($0) }).joined(separator: "\n"))
 }
 
@@ -50,7 +49,7 @@ func next() -> [[Character]] {
             }
             nextRow.append(nextSeat)
         }
-        nextLayout.append(row)
+        nextLayout.append(nextRow)
     }
     return nextLayout
 }
@@ -59,7 +58,7 @@ func main() {
     layout = getInput().split(separator: "\n").map { Array(String($0)) }
     var nextLayout = next()
     repeat {
-        showLayout()
+//        show(layout: layout)
         layout = nextLayout
         nextLayout = next()
     } while layout != nextLayout
