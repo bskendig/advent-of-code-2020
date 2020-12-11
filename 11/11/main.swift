@@ -14,37 +14,48 @@ func getInput() -> String {
 
 var layout: [[Character]] = []
 
-func seat(_ x: Int, _ y: Int) -> Character {
+func seat(_ x: Int, _ y: Int) -> Character? {
     guard 0 <= y, y < layout.count, 0 <= x, x < layout[0].count else {
-        return "."
+        return nil
     }
     return layout[y][x]
 }
 
-func neighbors(_ x: Int, _ y: Int) -> Int {
-    let adjacentSeats = [seat(x-1, y-1), seat(x, y-1), seat(x+1, y-1),
-                         seat(x-1, y), seat(x+1, y),
-                         seat(x-1, y+1), seat(x, y+1), seat(x+1, y+1)]
+func neighbors(_ x: Int, _ y: Int, keepGoing: Bool = false) -> Int {
+    let directions: [(dx: Int, dy: Int)] = [(-1, -1), (0, -1), (1, -1),
+                                            (-1,  0),          (1,  0),
+                                            (-1,  1), (0,  1), (1,  1)]
+    var adjacentSeats: [Character] = []
+    var visibleSeat: Character?
+    for direction in directions {
+        var newX = x
+        var newY = y
+        repeat {
+            newX += direction.dx
+            newY += direction.dy
+            visibleSeat = seat(newX, newY)
+        } while visibleSeat == "." && keepGoing
+        if let visibleSeat = visibleSeat {
+            adjacentSeats.append(visibleSeat)
+        }
+    }
     return adjacentSeats.filter({ $0 == "#" }).count
-}
-
-func countOccupiedSeats() -> Int {
-    return layout.reduce(0, { $0 + $1.filter({ $0 == "#" }).count })
 }
 
 func show(layout: [[Character]]) {
     print(layout.map({ String($0) }).joined(separator: "\n"))
 }
 
-func next() -> [[Character]] {
+func next(keepGoing: Bool) -> [[Character]] {
+    let occupyMinimum = keepGoing ? 5 : 4
     var nextLayout: [[Character]] = []
     for (y, row) in layout.enumerated() {
         var nextRow: [Character] = []
         for (x, seat) in row.enumerated() {
             var nextSeat: Character = seat
-            if seat == "L" && neighbors(x, y) == 0 {
+            if seat == "L" && neighbors(x, y, keepGoing: keepGoing) == 0 {
                 nextSeat = "#"
-            } else if seat == "#" && neighbors(x, y) >= 4 {
+            } else if seat == "#" && neighbors(x, y, keepGoing: keepGoing) >= occupyMinimum {
                 nextSeat = "L"
             }
             nextRow.append(nextSeat)
@@ -54,15 +65,25 @@ func next() -> [[Character]] {
     return nextLayout
 }
 
-func main() {
-    layout = getInput().split(separator: "\n").map { Array(String($0)) }
-    var nextLayout = next()
+func countOccupiedSeats(keepGoing: Bool = false) -> Int {
+    var nextLayout = next(keepGoing: keepGoing)
     repeat {
 //        show(layout: layout)
         layout = nextLayout
-        nextLayout = next()
+        nextLayout = next(keepGoing: keepGoing)
     } while layout != nextLayout
+    return layout.reduce(0, { $0 + $1.filter({ $0 == "#" }).count })
+}
+
+
+func main() {
+    let startingLayout = getInput().split(separator: "\n").map { Array(String($0)) }
+
+    layout = startingLayout
     print(countOccupiedSeats())
+
+    layout = startingLayout
+    print(countOccupiedSeats(keepGoing: true))
 }
 
 main()
