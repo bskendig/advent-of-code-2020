@@ -25,8 +25,29 @@ func main() {
             busId = bus
         }
     }
-    print("\(busId), \(waitTime)")
+//    print("\(busId), \(waitTime)")
     print(busId * waitTime)
+
+    var departures: [Int: Int] = [:]
+    for (index, bus) in String(input[1]).split(separator: ",").enumerated() where bus != "x" {
+        departures[index] = Int(bus)!
+    }
+//    print(departures)
+
+    var t = 0
+    var done = false
+    repeat {
+        done = true  // wishful thinking
+        t += departures[0]!
+        for (index, bus) in departures {
+//            print("\(index), \(bus)")
+            if (t + index) % bus != 0 {
+                done = false
+                break
+            }
+        }
+    } while !done
+    print(t)
 }
 
 main()
