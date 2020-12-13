@@ -25,16 +25,26 @@ func main() {
             busId = bus
         }
     }
-//    print("\(busId), \(waitTime)")
     print(busId * waitTime)
 
     var departures: [Int: Int] = [:]
     for (index, bus) in String(input[1]).split(separator: ",").enumerated() where bus != "x" {
         departures[index] = Int(bus)!
     }
-//    print(departures)
+    print(departures)
 
-    var t = 0
+    for departure in departures {
+        print("\((departure.value - (departure.key % departure.value)) % departure.value),\(departure.value)")
+    }
+
+    let departureArray = departures.sorted(by: { $0.key > $1.key })
+    print(departureArray)
+    let keys = departureArray.map { $0.key }
+    let values = departureArray.map { $0.value }
+    print(crt(keys, values))
+    // now enter those values into a Chinese Remainder Theorem solver online
+
+    var t = 539_746_751_134_000  // 0
     var done = false
     repeat {
         done = true  // wishful thinking
