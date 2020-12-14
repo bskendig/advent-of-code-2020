@@ -19,7 +19,17 @@ func masked(value: Int, mask: [Character?]) -> Int {
     for (index, char) in binary.enumerated() {
         masked.append((mask[index] != nil) ? mask[index]! : char)
     }
-//    print(binary)
+    return Int(String(masked), radix: 2)!
+}
+
+func masked(address: Int, mask: [Character?]) -> [Int] {
+    var binary = String(address, radix: 2)
+    binary = String(repeating: "0", count: mask.count - binary.count) + binary
+    var masked: [Character] = []
+    var result: [Int] = []
+    for (index, char) in binary.enumerated() {
+        masked.append((mask[index] != nil) ? (Int(binary[index])! || Int(mask[index]!)!) : "X")
+    }
     return Int(String(masked), radix: 2)!
 }
 
@@ -30,13 +40,11 @@ func main() {
     for line in input {
         if String(line.prefix(7)) == "mask = " {
             mask = line.suffix(from: 7).map { ($0 == "X") ? nil : $0 }
-//            print(mask)
         } else {
             let regex = try! NSRegularExpression(pattern: "^mem\\[(\\d+)\\] = (\\d+)$", options: [])
             let matches = regex.matches(in: String(line), options: [], range: NSMakeRange(0, line.count))
             let address = (String(line) as NSString).substring(with: matches[0].range(at: 1))
             let value = (String(line) as NSString).substring(with: matches[0].range(at: 2))
-//            print("\(address), \(value)")
             mem[Int(address)!] = masked(value: Int(value)!, mask: mask)
         }
     }
